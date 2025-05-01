@@ -6,7 +6,7 @@ import { RegisterRequest } from './dto/register.dto';
 export class AuthService {
   constructor(private readonly prismaService: PrismaService) {}
 
-  async register(dto: RegisterRequest): Promise<void> {
+  async register(dto: RegisterRequest): Promise<any> {
     const { name, email, password } = dto;
 
     const existUser = await this.prismaService.user.findUnique({
@@ -16,5 +16,11 @@ export class AuthService {
     if (existUser) {
       throw new ConflictException('User already exist');
     }
+
+    const user = await this.prismaService.user.create({
+      data: { name, email, password },
+    });
+
+    return user;
   }
 }
