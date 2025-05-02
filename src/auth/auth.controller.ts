@@ -17,6 +17,7 @@ import {
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
+  ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { AuthResponse } from './dto/auth.dto';
 
@@ -62,6 +63,7 @@ export class AuthController {
     description: 'Get refresh token',
   })
   @ApiOkResponse({ type: AuthResponse })
+  @ApiUnauthorizedResponse({ description: 'Unauthorized' })
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
   async refresh(
