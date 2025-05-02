@@ -99,10 +99,21 @@ export class AuthService {
     }
   }
 
-  async logout(res: Response) {
+  logout(res: Response) {
     this.setCookie(res, 'refreshToken', new Date(0));
-
     return true;
+  }
+
+  async validate(id: string) {
+    const user = await this.prismaService.user.findUnique({
+      where: { id },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User does not exist');
+    }
+
+    return user;
   }
 
   private auth(res: Response, id: string) {
