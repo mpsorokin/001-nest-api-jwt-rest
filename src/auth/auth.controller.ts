@@ -12,7 +12,9 @@ import { AuthService } from './auth.service';
 import { RegisterRequest } from './dto/register.dto';
 import { LoginRequest } from './dto/login.dto';
 import {
+  ApiBadRequestResponse,
   ApiConflictResponse,
+  ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
 } from '@nestjs/swagger';
@@ -27,6 +29,7 @@ export class AuthController {
     description: 'Create a new user',
   })
   @ApiOkResponse({ type: AuthResponse })
+  @ApiBadRequestResponse({ description: 'Incorrect data' })
   @ApiConflictResponse({ description: 'user already exists' })
   @Post('register')
   @HttpCode(HttpStatus.CREATED)
@@ -42,6 +45,9 @@ export class AuthController {
     summary: 'Login user',
     description: 'Login user',
   })
+  @ApiOkResponse({ type: AuthResponse })
+  @ApiBadRequestResponse({ description: 'Incorrect data' })
+  @ApiNotFoundResponse({ description: 'User not found' })
   @Post('login')
   @HttpCode(HttpStatus.OK)
   async login(
@@ -55,6 +61,7 @@ export class AuthController {
     summary: 'Get refresh token',
     description: 'Get refresh token',
   })
+  @ApiOkResponse({ type: AuthResponse })
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
   async refresh(
