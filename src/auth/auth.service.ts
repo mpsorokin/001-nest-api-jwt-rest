@@ -10,25 +10,28 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { JwtPayload } from './interfaces/jwt.interface';
 import { LoginRequest } from './dto/login.dto';
+import { Response } from 'express';
 
 @Injectable()
 export class AuthService {
-  private readonly JWT_SECRET: string;
   private readonly JWT_ACCESS_TOKEN_TTL: string;
   private readonly JWT_REFRESH_TOKEN_TTL: string;
+
+  private readonly COOKIE_DOMAIN: string;
 
   constructor(
     private readonly prismaService: PrismaService,
     private readonly configService: ConfigService,
     private readonly jwtService: JwtService,
   ) {
-    this.JWT_SECRET = configService.getOrThrow<string>('JWT_SECRET');
     this.JWT_ACCESS_TOKEN_TTL = configService.getOrThrow<string>(
       'JWT_ACCESS_TOKEN_TTL',
     );
     this.JWT_REFRESH_TOKEN_TTL = configService.getOrThrow<string>(
       'JWT_REFRESH_TOKEN_TTL',
     );
+
+    this.COOKIE_DOMAIN = configService.getOrThrow<string>('COOKIE_DOMAIN');
   }
 
   async register(dto: RegisterRequest): Promise<any> {
@@ -85,5 +88,11 @@ export class AuthService {
       accessToken,
       refreshToken,
     };
+  }
+
+  private setCookie(res: Response, value: string, expires: Date) {
+    res.cookie('refreshToken', value, {
+      httpOnly: true,
+    });
   }
 }
