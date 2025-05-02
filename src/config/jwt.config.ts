@@ -6,5 +6,8 @@ export async function getJwtConfig(
 ): Promise<JwtModuleOptions> {
   return {
     secret: configService.get<string>('JWT_SECRET'),
+    signOptions: {
+      algorithm: 'HS256',
+    },
   };
 }
