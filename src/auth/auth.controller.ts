@@ -11,11 +11,23 @@ import { Response, Request } from 'express';
 import { AuthService } from './auth.service';
 import { RegisterRequest } from './dto/register.dto';
 import { LoginRequest } from './dto/login.dto';
+import {
+  ApiConflictResponse,
+  ApiOkResponse,
+  ApiOperation,
+} from '@nestjs/swagger';
+import { AuthResponse } from './dto/auth.dto';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  @ApiOperation({
+    summary: 'Register user',
+    description: 'Create a new user',
+  })
+  @ApiOkResponse({ type: AuthResponse })
+  @ApiConflictResponse({ description: 'user already exists' })
   @Post('register')
   @HttpCode(HttpStatus.CREATED)
   async register(
@@ -26,6 +38,10 @@ export class AuthController {
     return await this.authService.register(res, dto);
   }
 
+  @ApiOperation({
+    summary: 'Login user',
+    description: 'Login user',
+  })
   @Post('login')
   @HttpCode(HttpStatus.OK)
   async login(
@@ -35,6 +51,10 @@ export class AuthController {
     return await this.authService.login(res, dto);
   }
 
+  @ApiOperation({
+    summary: 'Get refresh token',
+    description: 'Get refresh token',
+  })
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
   async refresh(
@@ -44,6 +64,10 @@ export class AuthController {
     return await this.authService.refresh(req, res);
   }
 
+  @ApiOperation({
+    summary: 'Logout user',
+    description: 'Logout user',
+  })
   @Post('logout')
   @HttpCode(HttpStatus.OK)
   async logout(@Res({ passthrough: true }) res: Response) {
