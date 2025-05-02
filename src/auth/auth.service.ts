@@ -2,6 +2,7 @@ import {
   ConflictException,
   Injectable,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { RegisterRequest } from './dto/register.dto';
@@ -10,7 +11,7 @@ import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { JwtPayload } from './interfaces/jwt.interface';
 import { LoginRequest } from './dto/login.dto';
-import { Response } from 'express';
+import { Response, Request } from 'express';
 import { isDev } from '../utils/is-dev.util';
 
 @Injectable()
@@ -72,6 +73,34 @@ export class AuthService {
     }
 
     return this.auth(res, user.id);
+  }
+
+  async refresh(req: Request, res: Response) {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const refreshToken = req.cookies['refreshToken'];
+
+    if (!refreshToken) {
+      throw new UnauthorizedException('Invalid Refresh token');
+    }
+
+    const payload: JwtPayload = await this.jwtService.verifyAsync(refreshToken);
+
+    if (payload) {
+      const user = await this.prismaService.user.findUnique({
+        where: { id: payload.id },
+        select: { id: true },
+      });
+
+      if (!user) {
+        throw new NotFoundException('User does not exist');
+      }
+
+      return this.auth(res, user.id);
+    }
+  }
+
+  async logout(res: Response) {
+    this.setCookie(res, 'refreshToken', new Date(0));
   }
 
   private auth(res: Response, id: string) {
