@@ -23,6 +23,7 @@ import {
 } from '@nestjs/swagger';
 import { AuthResponse } from './dto/auth.dto';
 import { AuthGuard } from '@nestjs/passport';
+import { Authorization } from './decorators/authorization.decorator';
 
 @Controller('auth')
 export class AuthController {
@@ -86,7 +87,8 @@ export class AuthController {
     return this.authService.logout(res);
   }
 
-  @UseGuards(AuthGuard('jwt'))
+  //@UseGuards(AuthGuard('jwt'))
+  @Authorization()
   @Get('@me')
   @HttpCode(HttpStatus.OK)
   async me(@Req() req: Request) {
